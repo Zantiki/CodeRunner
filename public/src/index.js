@@ -39,6 +39,7 @@ class Home extends Component{
             <div id="message" >
                 <h2 style={{textAlign: "center"}}>Welcome</h2>
                 <h1 style={{textAlign: "center"}}>Try to run some code</h1>
+                <h1 style={{marginTop: "30px"}}>Input</h1>
                 <CodeMirror
                     value={this.state.code}
                     options={this.options}
@@ -48,12 +49,12 @@ class Home extends Component{
                     onChange={(editor, data, value) => {
                     }}
                 />
-                <button id={"sumbit"} onClick={event => { this.submit() }} syle={{minHeight: "100px", minWidth: "500px", textAlign: "center"}}>Run code</button>
-                <h1 style={{marginTop: "20px", textAlign: "center"}}>Output</h1>
+                <button id={"submit"} className={"btn btn-success btn-lg btn-block"} onClick={event => { this.submit() }}>Run code</button>
+                <h1 style={{marginTop: "30px"}}>Output</h1>
                 <div style={{ height: "200px", overflow: "auto", backgroundColor: "black" }}>
                     {this.state.output.split("\n").map(line => (
                             <p style={{color: "green"}}>
-                                {line}
+                                {"coderunner> "+line}
                             </p>
                         )
                     )}

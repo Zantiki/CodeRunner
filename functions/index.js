@@ -6,6 +6,8 @@ let docker = require('dockerode');
 let readable = require('stream').Readable;
 var newStream = require('stream');
 
+//TODO: Fix stop and remove
+
 const app = express();
 app.use(cors({origin: true}));
 app.use(bodyParser.json());
