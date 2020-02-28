@@ -66,4 +66,4 @@ node_modules/
 .idea
 .firebaserc
 functions/package-lock.json
-
+public/package-lock.json

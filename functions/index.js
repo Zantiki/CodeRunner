@@ -8,7 +8,7 @@ var newStream = require('stream');
 
 const app = express();
 app.use(cors({origin: true}));
-app.use(bodyParser.json({limit: '100mb', extended: true}));
+app.use(bodyParser.json());
 
 
 let pyDocker = new docker({
@@ -17,16 +17,9 @@ let pyDocker = new docker({
 
 app.listen(8080);
 
-app.post("/pycodeSimple", (req, res) => {
-    pyDocker.run('python', ["python", "-c", "\"print('hello world')\""], [process.stdout, process.stderr],
-        {Tty:false}, {}, (data, container) =>{
-
-    })
-});
 
 async function execute(command, container) {
     console.log("Setting EXEC");
-    console.log(container);
     const exec = await container.exec({
         Cmd: command,
         //Cmd: command,
@@ -43,7 +36,6 @@ async function execute(command, container) {
                 //message = chunk.toString();
                 console.log(Object.keys(chunk));
                 let buf = clean(chunk);
-                console.log(buf.toString());
                 message = buf.toString();
                 stream.close = true;
                 stream.destroy();
@@ -63,8 +55,9 @@ function clean(buffer){
 
 app.post("/pycode", (req, res) => {
     // pyDocker.
-    console.log("Docking UwU");
-
+    console.log(req.body.code);
+    //let cmd = "import math \nprint(math.pi)";
+    let cmd = req.body.code;
     pyDocker.createContainer({
         Image: 'python',
         Tty: true,
@@ -72,8 +65,11 @@ app.post("/pycode", (req, res) => {
     }).then(function(container) {
         return container.start(function(err, data){
             //exec: ["python", "-c", "\"print('hello world')\""]
-            return execute(["python", "-c", "import math \nprint(math.pi)"], container)
-                .then(message => res.send(message));
+            return execute(["python", "-c", cmd], container)
+                .then(message => {
+                    console.log(message);
+                    res.send({body: message})}
+                );
         });
     }).then(container => {
         container.stop();
