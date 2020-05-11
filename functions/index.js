@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 
 let pyDocker = new docker({
-   host: '127.0. 0.1', port: 2375
+   host: '127.0.0.1', port: 2375
 });
 
 app.listen(8080);
