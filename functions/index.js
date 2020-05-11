@@ -13,9 +13,7 @@ app.use(cors({origin: true}));
 app.use(bodyParser.json());
 
 
-let pyDocker = new docker({
-   host: '127.0.0.1', port: 2375
-});
+let pyDocker = new docker();
 
 app.listen(8080);
 
