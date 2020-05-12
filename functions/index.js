@@ -2,20 +2,33 @@ const express = require("express");
 let cors = require("cors");
 let fs = require("fs");
 let bodyParser = require("body-parser");
+const https = require('https');
 let docker = require('dockerode');
 let readable = require('stream').Readable;
 var newStream = require('stream');
 
 //TODO: Fix stop and remove
 
+var key = fs.readFileSync('server.key');
+var cert = fs.readFileSync('server.crt');
+var options = {
+  key: key,
+  cert: cert
+};
+
 const app = express();
 app.use(cors({origin: true}));
 app.use(bodyParser.json());
+var server = https.createServer(options, app);
+
+server.listen(8080, () => {
+  console.log("server starting on port : " + port)
+});
 
 
 let pyDocker = new docker();
 
-app.listen(8080);
+//app.listen(8080);
 
 
 async function execute(command, container) {
