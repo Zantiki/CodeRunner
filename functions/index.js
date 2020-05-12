@@ -132,7 +132,7 @@ function compile(code, conn){
     // pyDocker.
     console.log(code);
     //let cmd = "import math \nprint(math.pi)";
-    let cmd = code;
+    let cmd = JSON.parse(code).code;
     pyDocker.createContainer({
         Image: 'python',
         Tty: true,
