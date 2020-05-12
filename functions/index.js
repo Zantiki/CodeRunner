@@ -3,6 +3,7 @@ let cors = require("cors");
 let fs = require("fs");
 let bodyParser = require("body-parser");
 const net = require("net");
+const crypto = require("crypto");
 let docker = require('dockerode');
 let readable = require('stream').Readable;
 var newStream = require('stream');
@@ -17,6 +18,13 @@ var server = https.createServer(options, app);*/
 
 let pyDocker = new docker();
 
+generateAcceptValue(acceptKey) {
+      return crypto
+            .createHash("sha1")
+            .update(acceptKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
+            .digest("base64");
+    }
+
 //app.listen(8080);
 
 server = net.createServer(conn => {
@@ -25,6 +33,18 @@ server = net.createServer(conn => {
             conn.on("data", data => { 
                 if (data.toString()[0] != "G") { 
                         compile(decode(data), conn);
+                }else{
+                            let key = data.toString().substring(data.toString().indexOf("-Key: ") + 6,data.toString().indexOf("==") + 2);
+                    let acceptValue = this.generateAcceptValue(key);
+
+                    const responseHeaders = [
+                        "HTTP/1.1 101 Web Socket Protocol Handshake",
+                        "Upgrade: websocket",
+                        "Connection: Upgrade",
+                        "Sec-WebSocket-Accept:" + acceptValue
+                    ];
+                    //Send handshake-res to client
+                    conn.write(responseHeaders.join("\r\n") + "\r\n\r\n");
                 }
             });
             conn.on("end", () => {
