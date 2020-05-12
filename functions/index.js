@@ -122,7 +122,7 @@ function compile(code, conn){
                 .then(message => {
                     console.log(message);
                     con.write(encode(message))
-                );
+            });
         });
     }).then(container => {
         container.stop();
