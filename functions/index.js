@@ -2,34 +2,74 @@ const express = require("express");
 let cors = require("cors");
 let fs = require("fs");
 let bodyParser = require("body-parser");
-const https = require('https');
+const net = require("net");
 let docker = require('dockerode');
 let readable = require('stream').Readable;
 var newStream = require('stream');
 
 //TODO: Fix stop and remove
 
-var key = fs.readFileSync('server.key');
-var cert = fs.readFileSync('server.crt');
-var options = {
-  key: key,
-  cert: cert
-};
-
-const app = express();
+/*const app = express();
 app.use(cors({origin: true}));
 app.use(bodyParser.json());
-var server = https.createServer(options, app);
-
-server.listen(8080, () => {
-  console.log("server starting on port : " + 8080)
-});
+var server = https.createServer(options, app);*/
 
 
 let pyDocker = new docker();
 
 //app.listen(8080);
 
+server = net.createServer(conn => {
+            console.log("Client connected");
+            
+            conn.on("data", data => { 
+                compile(decode(data), conn);
+            });
+            conn.on("end", () => {
+                          console.log("Client disconnected");
+                          const index = this.clients.indexOf(conn);
+                          if (index > -1) {
+                              this.clients.splice(index, 1);
+                          }
+                      });
+});
+server.on("error", error => {
+            console.error("Error: ", error);
+        });
+
+server.listen(8080, () => {
+  console.log("WebSocket server listening on port "+ 8080 );
+});
+
+decode (data){
+        let message = "";
+        let length = data[1] & 127;
+        let maskStart = 2;
+        let dataStart = maskStart + 4;
+
+        for (let i = dataStart; i < dataStart + length; i++) {
+            let byte = data[i] ^ data[maskStart + ((i - dataStart) % 4)];
+            message += String.fromCharCode(byte);
+        }
+        console.log("Message reads: "+message);
+        return message;
+    }
+
+ encode(message){
+        let msg = JSON.stringify(message);
+        let buffer = Buffer.concat([
+            new Buffer.from([
+                0x81,
+                "0x" +
+                (msg.length + 0x10000)
+                    .toString(16)
+                    .substr(-2)
+                    .toUpperCase()
+            ]),
+            Buffer.from(msg)
+        ]);
+        return buffer;
+    }
 
 async function execute(command, container) {
     console.log("Setting EXEC");
@@ -66,11 +106,11 @@ function clean(buffer){
     return new Buffer(data);
 }
 
-app.post("/pycode", (req, res) => {
+function compile(code, conn){
     // pyDocker.
-    console.log(req.body.code);
+    console.log(code);
     //let cmd = "import math \nprint(math.pi)";
-    let cmd = req.body.code;
+    let cmd = code;
     pyDocker.createContainer({
         Image: 'python',
         Tty: true,
@@ -81,7 +121,7 @@ app.post("/pycode", (req, res) => {
             return execute(["python", "-c", cmd], container)
                 .then(message => {
                     console.log(message);
-                    res.send({body: message})}
+                    con.write(encode(message))
                 );
         });
     }).then(container => {
