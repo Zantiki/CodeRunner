@@ -41,7 +41,7 @@ server.listen(8080, () => {
   console.log("WebSocket server listening on port "+ 8080 );
 });
 
-decode (data){
+function decode (data){
         let message = "";
         let length = data[1] & 127;
         let maskStart = 2;
@@ -55,7 +55,7 @@ decode (data){
         return message;
     }
 
- encode(message){
+function encode(message){
         let msg = JSON.stringify(message);
         let buffer = Buffer.concat([
             new Buffer.from([
