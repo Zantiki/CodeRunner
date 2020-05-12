@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 var server = https.createServer(options, app);
 
 server.listen(8080, () => {
-  console.log("server starting on port : " + port)
+  console.log("server starting on port : " + 8080)
 });
 
 
