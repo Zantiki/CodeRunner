@@ -18,7 +18,7 @@ var server = https.createServer(options, app);*/
 
 let pyDocker = new docker();
 
-generateAcceptValue(acceptKey) {
+function generateAcceptValue(acceptKey) {
       return crypto
             .createHash("sha1")
             .update(acceptKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
@@ -35,7 +35,7 @@ server = net.createServer(conn => {
                         compile(decode(data), conn);
                 }else{
                             let key = data.toString().substring(data.toString().indexOf("-Key: ") + 6,data.toString().indexOf("==") + 2);
-                    let acceptValue = this.generateAcceptValue(key);
+                    let acceptValue = generateAcceptValue(key);
 
                     const responseHeaders = [
                         "HTTP/1.1 101 Web Socket Protocol Handshake",
