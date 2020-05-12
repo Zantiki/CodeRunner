@@ -23,7 +23,9 @@ server = net.createServer(conn => {
             console.log("Client connected");
             
             conn.on("data", data => { 
-                compile(decode(data), conn);
+                if (data.toString()[0] != "G") { 
+                        compile(decode(data), conn);
+                }
             });
             conn.on("end", () => {
                           console.log("Client disconnected");
