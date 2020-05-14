@@ -131,9 +131,9 @@ function clean(buffer){
 
 function compile(code, conn){
     // pyDocker.
-    console.log(code);
+    console.log(code.toString());
     //let cmd = "import math \nprint(math.pi)";
-    let cmd = code;
+    let cmd = code.toString();
     pyDocker.createContainer({
         Image: 'python',
         Tty: true,
