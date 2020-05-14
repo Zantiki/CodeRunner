@@ -15,7 +15,7 @@ app.use(cors({origin: true}));
 app.use(bodyParser.json());
 var server = https.createServer(options, app);*/
 
-
+let clients = [];
 let pyDocker = new docker();
 
 function generateAcceptValue(acceptKey) {
@@ -32,7 +32,7 @@ server = net.createServer(conn => {
             
             conn.on("data", data => { 
                 if (data.toString()[0] != "G") { 
-                        compile(decode(data), conn);
+                        compile(data, conn);
                 }else{
                             let key = data.toString().substring(data.toString().indexOf("-Key: ") + 6,data.toString().indexOf("==") + 2);
                     let acceptValue = generateAcceptValue(key);
@@ -45,6 +45,7 @@ server = net.createServer(conn => {
                     ];
                     //Send handshake-res to client
                     conn.write(responseHeaders.join("\r\n") + "\r\n\r\n");
+                        clients.push(conn);
                 }
             });
             conn.on("end", () => {
@@ -132,7 +133,7 @@ function compile(code, conn){
     // pyDocker.
     console.log(code);
     //let cmd = "import math \nprint(math.pi)";
-    let cmd = JSON.parse(code).code;
+    let cmd = code;
     pyDocker.createContainer({
         Image: 'python',
         Tty: true,
