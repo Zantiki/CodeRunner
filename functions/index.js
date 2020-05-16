@@ -43,9 +43,9 @@ server = net.createServer(conn => {
                         "Connection: Upgrade",
                         "Sec-WebSocket-Accept:" + acceptValue
                     ];
-                    //Send handshake-res to client
+
                     conn.write(responseHeaders.join("\r\n") + "\r\n\r\n");
-                        clients.push(conn);
+                    clients.push(conn);
                 }
             });
             conn.on("end", () => {
@@ -56,13 +56,17 @@ server = net.createServer(conn => {
                           }
                       });
 });
+
 server.on("error", error => {
             console.error("Error: ", error);
-        });
+});
+
 
 server.listen(8080, () => {
   console.log("WebSocket server listening on port "+ 8080 );
 });
+
+
 
 function decode (data){
         let message = "";
@@ -132,7 +136,6 @@ function clean(buffer){
 function compile(code, conn){
     // pyDocker.
     console.log(code.toString());
-    //let cmd = "import math \nprint(math.pi)";
     let cmd = code.toString();
     pyDocker.createContainer({
         Image: 'python',
@@ -140,20 +143,24 @@ function compile(code, conn){
         Cmd: ['/bin/bash']
     }).then(function(container) {
         return container.start(function(err, data){
-            //exec: ["python", "-c", "\"print('hello world')\""]
             return execute(["python", "-c", cmd], container)
                 .then(message => {
                     console.log(message);
-                    conn.write(encode(message))
+                    try{
+                        conn.write(message);
+                    }catch{
+                        console.log("Connection lost");
+                    }
+
             });
         });
     }).then(container => {
         container.stop();
     })
-        .then(container => {
-            container.remove(function (err, data) {
-                console.log(data);
-            });
+    .then(container => {
+        container.remove(function (err, data) {
+            console.log(data);
         });
+    });
 
 }
